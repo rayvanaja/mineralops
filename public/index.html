@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>MineralOps — PT. Mineral Baturaja Indonesia</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0d1117">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MineralOps">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<style>
+:root{
+  --bg:#0d1117;--sidebar:#131920;--card:#1a2332;--card2:#1e2a3a;
+  --border:#243447;--border2:#2d3f55;--input-bg:#0d1117;
+  --accent:#3b9eff;--accent-d:#2d7dd2;
+  --tx:#e8edf2;--tx2:#b0bec8;--tx3:#8899aa;
+  --ok:#2ecc71;--ok-bg:rgba(46,204,113,.12);--ok-bd:rgba(46,204,113,.35);
+  --warn:#e74c3c;--warn-bg:rgba(231,76,60,.12);--warn-bd:rgba(231,76,60,.35);
+  --amber:#f39c12;--amber-bg:rgba(243,156,18,.12);--amber-bd:rgba(243,156,18,.35);
+  --ai:#7c4dff;--ai-bg:rgba(124,77,255,.12);--ai-bd:rgba(124,77,255,.35);
+  --sky:#00b4d8;--sky-bg:rgba(0,180,216,.12);--sky-bd:rgba(0,180,216,.35);
+  --r:6px;--rs:4px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:"Inter","Segoe UI",system-ui,Arial,sans-serif;background:var(--bg);color:var(--tx);font-size:13px;line-height:1.45;}
+#app{max-width:430px;height:100vh;margin:0 auto;display:flex;flex-direction:column;overflow:hidden;}
+#topnav{background:var(--sidebar);border-bottom:1px solid var(--border);padding:8px 12px 9px;flex-shrink:0;}
+.nav-r1{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.brand-logo{width:24px;height:24px;background:var(--accent-d);border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.brand-logo svg{width:14px;height:14px;}
+.brand-txt{font-weight:700;color:var(--tx);font-size:10.5px;letter-spacing:.2px;line-height:1.25;}
+.brand-txt small{display:block;color:var(--tx3);font-size:8px;font-weight:400;letter-spacing:.5px;}
+.shift-chip{margin-left:auto;background:var(--card2);border:1px solid var(--border2);color:var(--accent);font-size:8px;font-weight:700;padding:3px 8px;border-radius:20px;cursor:pointer;letter-spacing:.6px;flex-shrink:0;}
+.nav-r2{display:flex;align-items:baseline;justify-content:space-between;}
+.nav-greet{color:var(--tx3);font-size:10px;}
+.nav-page{color:var(--tx);font-weight:700;font-size:15px;}
+.ver{position:fixed;bottom:50px;right:6px;background:rgba(13,17,23,.85);border:1px solid var(--border);color:var(--tx3);font-size:7.5px;padding:2px 6px;border-radius:10px;z-index:50;pointer-events:none;letter-spacing:.3px;}
+.sync-bar{display:flex;align-items:center;gap:6px;padding:4px 10px;background:var(--card2);border-bottom:1px solid var(--border);font-size:9px;color:var(--tx3);flex-shrink:0;}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--tx3);flex-shrink:0;}
+.sync-dot.ok{background:var(--ok);}.sync-dot.err{background:var(--warn);}.sync-dot.syncing{background:var(--amber);animation:pulse .8s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+#content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+#content::-webkit-scrollbar{width:2px;}
+#content::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.screen{display:none;}.screen.active{display:block;}
+.pad{padding:10px 10px 20px;}
+#tabbar{background:var(--sidebar);border-top:1px solid var(--border);display:flex;flex-shrink:0;}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px 7px;cursor:pointer;border:none;background:none;border-top:2px solid transparent;transition:border-color .15s;}
+.tab-btn.active{border-top-color:var(--accent);}
+.tab-btn.ai-tab.active{border-top-color:var(--ai);}
+.tab-icon{font-size:17px;line-height:1;}
+.tab-label{font-size:8px;font-weight:600;color:var(--tx3);}
+.tab-btn.active .tab-label{color:var(--accent);}
+.tab-btn.ai-tab.active .tab-label{color:var(--ai);}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.sh h3{font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.7px;text-transform:uppercase;}
+.sh-act{font-size:10px;font-weight:600;color:var(--accent);border:none;background:none;cursor:pointer;padding:0;}
+.stat-row{display:flex;gap:6px;margin-bottom:6px;}
+.stat-card{flex:1;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;}
+.s-lbl{font-size:8px;font-weight:600;color:var(--tx3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:4px;}
+.s-val{font-size:18px;font-weight:700;color:var(--tx);line-height:1;}
+.s-val .u{font-size:10px;font-weight:400;color:var(--tx3);}
+.s-diff{font-size:9px;margin-top:2px;color:var(--tx3);}
+.c-ok{color:var(--ok);}.c-warn{color:var(--warn);}
+.alert{border:1px solid;border-radius:var(--r);padding:8px 10px;margin-bottom:7px;display:flex;gap:8px;align-items:flex-start;animation:fadeIn .3s ease;}
+.alert.red{border-color:var(--warn-bd);background:var(--warn-bg);}
+.alert.amber{border-color:var(--amber-bd);background:var(--amber-bg);}
+.alert.green{border-color:var(--ok-bd);background:var(--ok-bg);}
+.alert.blue{border-color:var(--border2);background:var(--card2);}
+.alert.sky{border-color:var(--sky-bd);background:var(--sky-bg);}
+.a-ico{font-size:14px;flex-shrink:0;margin-top:1px;}
+.a-title{font-weight:700;font-size:11px;margin-bottom:2px;}
+.alert.red .a-title{color:var(--warn);}
+.alert.amber .a-title{color:var(--amber);}
+.alert.green .a-title{color:var(--ok);}
+.alert.blue .a-title{color:var(--accent);}
+.alert.sky .a-title{color:var(--sky);}
+.a-body{font-size:10px;color:var(--tx2);line-height:1.45;}
+
+/* BRIEFING */
+.briefing{background:var(--card);border:1px solid var(--ai-bd);border-radius:var(--r);padding:10px 12px;margin-bottom:8px;position:relative;overflow:hidden;}
+.briefing::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--ai),var(--accent));}
+.brief-hd{display:flex;align-items:center;gap:7px;margin-bottom:6px;}
+.brief-hd .bi{font-size:13px;}
+.brief-hd .bt{font-weight:700;font-size:11px;color:var(--ai);background:var(--ai-bg);border:1px solid var(--ai-bd);padding:1px 7px;border-radius:20px;}
+.brief-hd .btime{margin-left:auto;font-size:8px;color:var(--tx3);}
+.brief-txt{font-size:10.5px;color:var(--tx2);line-height:1.6;}
+.brief-loading{display:flex;align-items:center;gap:6px;color:var(--tx3);font-size:10px;}
+.brief-loading .spin{width:10px;height:10px;border:1.5px solid var(--border2);border-top-color:var(--ai);border-radius:50%;animation:spin .7s linear infinite;}
+
+/* WEATHER CARD */
+.weather-strip{background:var(--card);border:1px solid var(--sky-bd);border-radius:var(--r);padding:9px 12px;margin-bottom:8px;}
+.wx-head{display:flex;align-items:center;gap:6px;margin-bottom:7px;}
+.wx-head .wt{font-size:10px;font-weight:700;color:var(--sky);}
+.wx-head .ws{margin-left:auto;font-size:8.5px;color:var(--tx3);}
+.wx-days{display:flex;gap:5px;}
+.wx-day{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:var(--rs);padding:6px 5px;text-align:center;}
+.wx-day.danger{border-color:var(--warn-bd);background:var(--warn-bg);}
+.wx-day.caution{border-color:var(--amber-bd);background:var(--amber-bg);}
+.wx-day.safe{border-color:var(--ok-bd);background:var(--ok-bg);}
+.wx-day .wd{font-size:8.5px;font-weight:600;color:var(--tx3);margin-bottom:3px;}
+.wx-day .wi{font-size:18px;line-height:1;margin-bottom:3px;}
+.wx-day .wr{font-size:10px;font-weight:700;color:var(--tx);}
+.wx-day .wp{font-size:8px;color:var(--tx3);margin-top:1px;}
+.wx-day.danger .wr{color:var(--warn);}
+.wx-day.caution .wr{color:var(--amber);}
+.wx-day.safe .wr{color:var(--ok);}
+
+/* PREDIKSI AIR PANEL */
+.pred-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:8px;}
+.pred-panel-hd{background:var(--card2);border-bottom:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;}
+.pred-panel-hd .pt{font-size:11px;font-weight:700;color:var(--tx);}
+.pred-panel-hd .ps{font-size:9px;color:var(--tx3);}
+.pred-body{padding:10px 12px;}
+.pred-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.pred-row:last-child{margin-bottom:0;}
+.pred-icon{font-size:20px;flex-shrink:0;}
+.pred-info{flex:1;}
+.pred-label{font-size:10.5px;font-weight:600;color:var(--tx2);margin-bottom:2px;}
+.pred-val{font-size:12px;font-weight:700;}
+.pred-val.ok{color:var(--ok);}
+.pred-val.warn{color:var(--warn);}
+.pred-val.amber{color:var(--amber);}
+.pred-sub{font-size:9px;color:var(--tx3);margin-top:1px;}
+.pred-bar-wrap{margin-top:4px;}
+.pred-bar{height:5px;background:var(--border);border-radius:20px;overflow:hidden;}
+.pred-bar-fill{height:100%;border-radius:20px;transition:width .5s;}
+
+/* DETECTION CARD */
+.detect-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:8px;}
+.detect-hd{background:var(--card2);border-bottom:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;gap:7px;}
+.detect-hd .dico{font-size:13px;}
+.detect-hd .dtitle{font-size:11px;font-weight:700;color:var(--tx);}
+.detect-hd .dsub{font-size:9px;color:var(--tx3);margin-left:auto;}
+.detect-body{padding:0;}
+.detect-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--border);}
+.detect-item:last-child{border-bottom:none;}
+.di-ico{width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.di-ico.ok{background:var(--ok-bg);}
+.di-ico.warn{background:var(--warn-bg);}
+.di-ico.amber{background:var(--amber-bg);}
+.di-body{flex:1;}
+.di-label{font-size:10.5px;font-weight:600;color:var(--tx);margin-bottom:1px;}
+.di-sub{font-size:9px;color:var(--tx3);}
+.di-right{font-size:10px;font-weight:700;text-align:right;flex-shrink:0;}
+.di-right.ok{color:var(--ok);}
+.di-right.warn{color:var(--warn);}
+.di-right.amber{color:var(--amber);}
+
+.mod-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
+.mod-btn{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:10px 11px;cursor:pointer;text-align:left;position:relative;transition:border-color .12s;}
+.mod-btn:active{border-color:var(--accent);}
+.mod-btn .mi{font-size:20px;margin-bottom:5px;display:block;}
+.mod-btn .mn{font-weight:700;font-size:11.5px;color:var(--tx);line-height:1.2;margin-bottom:2px;}
+.mod-btn .ms{font-size:9px;color:var(--tx3);}
+.mbadge{position:absolute;top:8px;right:8px;font-size:7.5px;font-weight:700;padding:2px 6px;border-radius:20px;border:1px solid;}
+.mbadge.warn{background:var(--warn-bg);border-color:var(--warn-bd);color:var(--warn);}
+.mbadge.ok{background:var(--ok-bg);border-color:var(--ok-bd);color:var(--ok);}
+.mbadge.ai{background:var(--ai-bg);border-color:var(--ai-bd);color:var(--ai);}
+.hist-list{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:8px;}
+.hist-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);}
+.hist-item:last-child{border-bottom:none;}
+.h-ico{width:28px;height:28px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.h-ico.blue{background:rgba(59,158,255,.15);}
+.h-ico.green{background:rgba(46,204,113,.12);}
+.h-ico.amber{background:rgba(243,156,18,.12);}
+.h-body{flex:1;min-width:0;}
+.h-name{font-size:11px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.h-sub{font-size:9px;color:var(--tx3);}
+.h-right{text-align:right;flex-shrink:0;}
+.h-val{font-size:13px;font-weight:700;color:var(--tx);}
+.h-unit{font-size:8.5px;color:var(--tx3);}
+.prog-wrap{margin-bottom:8px;}
+.prog-hd{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;}
+.prog-lbl{font-size:10px;font-weight:600;color:var(--tx2);}
+.prog-val{font-size:10px;font-weight:700;color:var(--tx);}
+.prog-bar{height:6px;background:var(--border);border-radius:20px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:20px;transition:width .4s;}
+.fill-blue{background:var(--accent);}
+.fill-ok{background:var(--ok);}
+.fill-warn{background:var(--warn);}
+.pump-row{display:flex;gap:6px;margin-bottom:10px;}
+.pump-card{flex:1;border:1px solid;border-radius:var(--rs);padding:8px 6px;text-align:center;}
+.pump-card.on{border-color:var(--ok-bd);background:var(--ok-bg);}
+.pump-card.off{border-color:var(--border);background:var(--card);}
+.p-ico{font-size:16px;margin-bottom:2px;}
+.p-name{font-size:9.5px;font-weight:700;color:var(--tx2);}
+.p-status{font-size:8px;font-weight:600;margin-top:1px;}
+.pump-card.on .p-status{color:var(--ok);}
+.pump-card.off .p-status{color:var(--tx3);}
+.shift-row{display:flex;gap:6px;margin-bottom:10px;}
+.shift-btn{flex:1;padding:7px;border:1px solid var(--border);border-radius:var(--rs);font-size:11px;font-weight:600;color:var(--tx3);background:var(--card);cursor:pointer;text-align:center;transition:all .12s;}
+.shift-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(59,158,255,.1);}
+.unit-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:8px 10px;display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.unit-card.warn{border-color:var(--warn-bd);background:var(--warn-bg);}
+.u-ico{font-size:18px;flex-shrink:0;}
+.u-body{flex:1;}
+.u-name{font-size:11px;font-weight:700;color:var(--tx);margin-bottom:1px;}
+.u-sub{font-size:9px;color:var(--tx3);}
+.u-right{text-align:right;}
+.u-val{font-size:14px;font-weight:700;color:var(--tx);}
+.unit-card.warn .u-val{color:var(--warn);}
+.u-uom{font-size:8.5px;color:var(--tx3);}
+.tag{display:inline-block;font-size:7.5px;font-weight:700;padding:1px 6px;border-radius:20px;margin-left:4px;vertical-align:middle;border:1px solid;}
+.tag.ok{background:var(--ok-bg);border-color:var(--ok-bd);color:var(--ok);}
+.tag.warn{background:var(--warn-bg);border-color:var(--warn-bd);color:var(--warn);}
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:8px;}
+.form-hdr{background:var(--card2);border-bottom:1px solid var(--border);padding:9px 12px;display:flex;align-items:center;gap:8px;}
+.fh-ico{font-size:15px;}
+.fh-title{font-weight:700;font-size:12px;color:var(--tx);}
+.fh-sub{font-size:9px;color:var(--tx3);margin-top:1px;}
+.form-body{padding:10px 12px 12px;}
+.field{margin-bottom:10px;}
+.field label{display:block;font-size:10px;font-weight:600;color:var(--tx2);margin-bottom:4px;}
+.req{color:var(--warn);margin-left:1px;}
+.hint{font-size:8.5px;color:var(--tx3);margin-top:2px;}
+.f-row{display:flex;gap:6px;}
+.f-row .field{flex:1;}
+input[type=number],input[type=text],input[type=time],select,textarea{width:100%;border:1px solid var(--border2);border-radius:var(--rs);padding:7px 9px;font-size:12.5px;color:var(--tx);background:var(--input-bg);-webkit-appearance:none;appearance:none;font-family:inherit;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238899aa' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:26px;cursor:pointer;}
+textarea{resize:none;}
+input::placeholder,textarea::placeholder{color:var(--tx3);}
+.iw{position:relative;}
+.iw input{padding-right:34px;}
+.iw .uw{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:9.5px;font-weight:600;color:var(--tx3);pointer-events:none;}
+.seg-ctrl{display:flex;gap:4px;}
+.seg-opt{flex:1;padding:6px 4px;border:1px solid var(--border2);border-radius:var(--rs);font-size:10.5px;font-weight:600;color:var(--tx3);background:var(--input-bg);cursor:pointer;text-align:center;transition:all .12s;}
+.seg-opt.active{border-color:var(--accent);color:var(--accent);background:rgba(59,158,255,.1);}
+.btn-p{width:100%;padding:9px;background:var(--accent-d);border:none;border-radius:var(--rs);font-size:12.5px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .12s;}
+.btn-p:hover{background:var(--accent);}
+.btn-p:disabled{opacity:.5;cursor:not-allowed;}
+.btn-s{width:100%;padding:8px;background:var(--card2);border:1px solid var(--border2);border-radius:var(--rs);font-size:12px;font-weight:600;color:var(--tx2);cursor:pointer;margin-top:6px;}
+.empty{text-align:center;padding:24px 16px;color:var(--tx3);}
+.empty .ei{font-size:28px;margin-bottom:8px;}
+.empty .em{font-size:11.5px;font-weight:600;color:var(--tx2);margin-bottom:2px;}
+.empty .es{font-size:9.5px;}
+
+/* AI CHAT */
+#s-ai{display:flex;flex-direction:column;height:100%;padding:0;}
+.ai-header{padding:10px 12px 8px;border-bottom:1px solid var(--border);background:var(--card2);flex-shrink:0;}
+.ai-header-title{font-weight:700;font-size:12px;color:var(--ai);display:flex;align-items:center;gap:6px;margin-bottom:3px;}
+.ai-header-sub{font-size:9px;color:var(--tx3);}
+.ai-quick{display:flex;gap:5px;padding:8px 10px;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto;}
+.ai-quick::-webkit-scrollbar{display:none;}
+.qchip{flex-shrink:0;padding:5px 10px;background:var(--card);border:1px solid var(--border2);border-radius:20px;font-size:9.5px;font-weight:600;color:var(--tx2);cursor:pointer;white-space:nowrap;transition:all .12s;}
+.qchip:hover{border-color:var(--ai);color:var(--ai);}
+.ai-msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;}
+.ai-msgs::-webkit-scrollbar{width:2px;}
+.ai-msgs::-webkit-scrollbar-thumb{background:var(--border2);}
+.msg{max-width:88%;border-radius:var(--r);padding:8px 11px;font-size:11px;line-height:1.55;}
+.msg.user{align-self:flex-end;background:var(--accent-d);color:#fff;border-bottom-right-radius:2px;}
+.msg.ai{align-self:flex-start;background:var(--card);border:1px solid var(--ai-bd);color:var(--tx2);border-bottom-left-radius:2px;}
+.msg.ai .msg-label{font-size:8.5px;font-weight:700;color:var(--ai);margin-bottom:4px;}
+.msg.ai b{color:var(--tx);}
+.msg-thinking{align-self:flex-start;display:flex;align-items:center;gap:8px;color:var(--tx3);font-size:10px;padding:8px 11px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);}
+.dots span{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--ai);animation:dot 1.2s infinite;}
+.dots span:nth-child(2){animation-delay:.2s;}
+.dots span:nth-child(3){animation-delay:.4s;}
+@keyframes dot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.ai-input-row{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--border);flex-shrink:0;background:var(--card2);}
+.ai-input-row textarea{flex:1;background:var(--input-bg);border:1px solid var(--border2);border-radius:var(--rs);padding:8px 10px;font-size:12px;color:var(--tx);resize:none;height:38px;font-family:inherit;}
+.ai-input-row textarea:focus{border-color:var(--ai);outline:none;}
+.ai-send{width:38px;height:38px;background:var(--ai);border:none;border-radius:var(--rs);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ai-send:disabled{opacity:.4;cursor:not-allowed;}
+.ai-send svg{width:16px;height:16px;fill:#fff;}
+
+#toast{position:fixed;bottom:52px;left:50%;transform:translateX(-50%) translateY(6px);background:var(--card2);border:1px solid var(--border2);color:var(--tx);font-size:12px;font-weight:600;padding:8px 16px;border-radius:20px;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap;z-index:999;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;display:none;align-items:flex-end;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal-box{background:var(--card);border:1px solid var(--border2);border-radius:10px 10px 0 0;padding:16px 14px 28px;width:100%;max-width:430px;}
+.modal-title{font-weight:700;font-size:13px;color:var(--tx);margin-bottom:3px;}
+.modal-sub{font-size:10.5px;color:var(--tx3);margin-bottom:14px;}
+.btn-danger{width:100%;padding:9px;background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:var(--rs);font-size:12px;font-weight:700;color:var(--warn);cursor:pointer;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="topnav">
+    <div class="nav-r1">
+      <div class="brand-logo">
+        <svg viewBox="0 0 14 14" fill="none"><path d="M2 10L7 4L12 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="brand-txt">PT. MINERAL BATURAJA INDONESIA<small>COAL MINING OPERATIONS</small></div>
+      <button class="shift-chip" id="shiftBtn" onclick="toggleShift()">SHIFT SIANG</button>
+    </div>
+    <div class="nav-r2">
+      <div class="nav-greet" id="navGreet">Selamat pagi, Pengawas</div>
+      <div class="nav-page" id="navPage">Beranda</div>
+    </div>
+  </div>
+  <div class="sync-bar" id="syncBar">
+    <div class="sync-dot" id="syncDot"></div>
+    <span id="syncTxt">Menghubungkan…</span>
+  </div>
+
+  <div id="content">
+
+    <!-- ═══ BERANDA ═══ -->
+    <div class="screen active pad" id="s-home">
+      <div class="briefing">
+        <div class="brief-hd"><span class="bi">✦</span><span class="bt">Briefing AI</span><span class="btime" id="briefTime"></span></div>
+        <div id="briefTxt"><div class="brief-loading"><div class="spin"></div>AI sedang menyusun briefing…</div></div>
+      </div>
+      <div id="homeAlerts"></div>
+      <div class="stat-row">
+        <div class="stat-card"><div class="s-lbl">OB Hari Ini</div><div class="s-val" id="sOB">— <span class="u">BCM</span></div><div class="s-diff" id="sOBd"></div></div>
+        <div class="stat-card"><div class="s-lbl">Solar</div><div class="s-val" id="sBBM">— <span class="u">L</span></div><div class="s-diff" id="sBBMd"></div></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-card"><div class="s-lbl">Level Sump</div><div class="s-val" id="sSump">— <span class="u">%</span></div><div class="s-diff" id="sSumpD"></div></div>
+        <div class="stat-card"><div class="s-lbl">Level Pond</div><div class="s-val" id="sPond">— <span class="u">%</span></div><div class="s-diff" id="sPondD"></div></div>
+      </div>
+      <div class="sh"><h3>Input Lapangan</h3></div>
+      <div class="mod-grid">
+        <button class="mod-btn" onclick="nav('s-air')"><span class="mi">💧</span><div class="mn">Manajemen Air</div><div class="ms">Sump & Settling Pond</div><span class="mbadge warn" id="badgeAir">!</span></button>
+        <button class="mod-btn" onclick="nav('s-ob')"><span class="mi">⛏️</span><div class="mn">Produksi OB</div><div class="ms">BCM per shift</div><span class="mbadge ok">✓</span></button>
+        <button class="mod-btn" onclick="nav('s-bbm')"><span class="mi">⛽</span><div class="mn">BBM / Solar</div><div class="ms">Konsumsi per unit</div><span class="mbadge warn">!</span></button>
+        <button class="mod-btn" onclick="nav('s-ai')"><span class="mi">✦</span><div class="mn">Tanya AI</div><div class="ms">Analisa & strategi</div><span class="mbadge ai">AI</span></button>
+      </div>
+      <div class="sh"><h3>Input Terakhir</h3><button class="sh-act" onclick="nav('s-riwayat')">Lihat semua</button></div>
+      <div class="hist-list" id="homeHist"><div class="empty"><div class="ei">📝</div><div class="em">Belum ada data</div><div class="es">Mulai input dari modul di atas</div></div></div>
+    </div>
+
+    <!-- ═══ MANAJEMEN AIR ═══ -->
+    <div class="screen pad" id="s-air">
+      <!-- Cuaca 3 hari -->
+      <div class="sh" style="margin-bottom:6px"><h3>Prakiraan Cuaca — Baturaja</h3></div>
+      <div id="weatherCard"><div class="alert blue" style="margin-bottom:8px"><span class="a-ico">🌤️</span><div><div class="a-title">Memuat data cuaca…</div><div class="a-body">Mengambil prakiraan dari Open-Meteo.</div></div></div></div>
+
+      <!-- Prediksi Air AI -->
+      <div class="sh" style="margin-bottom:6px"><h3>Prediksi AI — Level Air</h3></div>
+      <div id="airPred"><div class="alert blue"><span class="a-ico">💡</span><div><div class="a-title">Belum Ada Data</div><div class="a-body">Input level air untuk mengaktifkan prediksi.</div></div></div></div>
+
+      <!-- Level visual -->
+      <div class="sh" style="margin-bottom:4px"><h3>Level Saat Ini</h3></div>
+      <div class="prog-wrap"><div class="prog-hd"><span class="prog-lbl">Sump #1</span><span class="prog-val" id="lvS1">—</span></div><div class="prog-bar"><div class="prog-fill fill-blue" id="barS1" style="width:0%"></div></div></div>
+      <div class="prog-wrap"><div class="prog-hd"><span class="prog-lbl">Settling Pond</span><span class="prog-val" id="lvPd">—</span></div><div class="prog-bar"><div class="prog-fill fill-blue" id="barPd" style="width:0%"></div></div></div>
+
+      <!-- Pompa -->
+      <div class="sh" style="margin-bottom:5px"><h3>Status Pompa</h3></div>
+      <div class="pump-row">
+        <div class="pump-card off" id="pp1"><div class="p-ico">⏸️</div><div class="p-name">P-01</div><div class="p-status">○ OFF</div></div>
+        <div class="pump-card off" id="pp2"><div class="p-ico">⏸️</div><div class="p-name">P-02</div><div class="p-status">○ OFF</div></div>
+        <div class="pump-card off" id="pp3"><div class="p-ico">⏸️</div><div class="p-name">P-03</div><div class="p-status">○ OFF</div></div>
+      </div>
+
+      <!-- Form input -->
+      <div class="form-card">
+        <div class="form-hdr"><span class="fh-ico">💧</span><div><div class="fh-title">Input Level Air</div><div class="fh-sub" id="airSub"></div></div></div>
+        <div class="form-body">
+          <div class="f-row">
+            <div class="field"><label>Titik Ukur<span class="req">*</span></label><select id="airTitik"><option value="">Pilih…</option><option>Sump #1</option><option>Sump #2</option><option>Settling Pond</option></select></div>
+            <div class="field"><label>Level Air<span class="req">*</span></label><div class="iw"><input type="number" id="airLevel" min="0" max="100" placeholder="0"><span class="uw">%</span></div></div>
+          </div>
+          <div class="field"><label>Pompa Aktif <span style="color:var(--tx3);font-weight:400">(multi pilih)</span></label><div class="seg-ctrl" id="pompaCtrl"><div class="seg-opt" onclick="toggleSeg(this)">P-01</div><div class="seg-opt" onclick="toggleSeg(this)">P-02</div><div class="seg-opt" onclick="toggleSeg(this)">P-03</div></div></div>
+          <div class="field"><label>Debit Pompa</label><div class="iw"><input type="number" id="airDebit" min="0" placeholder="0"><span class="uw">m³/j</span></div></div>
+          <div class="field"><label>Catatan</label><textarea id="airCat" rows="2" placeholder="Kondisi khusus, kerusakan, cuaca…"></textarea></div>
+          <div class="field"><label>Petugas<span class="req">*</span></label><select id="airPetugas"><option value="">Pilih…</option><option>Ahmad</option><option>Budi</option><option>Eko</option><option>Pengawas</option></select></div>
+          <button class="btn-p" id="btnAir" onclick="saveAir()">💾 Simpan Data Air</button>
+          <button class="btn-s" onclick="nav('s-home')">← Beranda</button>
+        </div>
+      </div>
+      <div class="sh"><h3>Riwayat Air</h3></div>
+      <div class="hist-list" id="airHist"><div class="empty"><div class="ei">💧</div><div class="em">Belum ada data</div></div></div>
+    </div>
+
+    <!-- ═══ PRODUKSI OB ═══ -->
+    <div class="screen pad" id="s-ob">
+      <div class="sh" style="margin-bottom:6px"><h3>Progress Bulan Ini</h3></div>
+      <div class="prog-wrap"><div class="prog-hd"><span class="prog-lbl">Target OB</span><span class="prog-val" id="obProg">0%</span></div><div class="prog-bar"><div class="prog-fill fill-blue" id="barOB" style="width:0%"></div></div></div>
+      <div id="obForecast"></div>
+      <div class="sh" style="margin-bottom:5px"><h3>Input Produksi OB</h3></div>
+      <div class="shift-row"><div class="shift-btn active" id="shSiang" onclick="selShift('Siang')">Shift Siang</div><div class="shift-btn" id="shMalam" onclick="selShift('Malam')">Shift Malam</div></div>
+      <div class="form-card">
+        <div class="form-hdr"><span class="fh-ico">⛏️</span><div><div class="fh-title">Data Produksi OB</div><div class="fh-sub" id="obSub"></div></div></div>
+        <div class="form-body">
+          <div class="field"><label>Unit Alat<span class="req">*</span></label><select id="obUnit"><option value="">Pilih unit…</option><option>EX-01</option><option>EX-02</option><option>EX-03</option><option>DT-01</option><option>DT-02</option></select></div>
+          <div class="f-row">
+            <div class="field"><label>Operator<span class="req">*</span></label><select id="obOp"><option value="">Pilih…</option><option>Budi</option><option>Slamet</option><option>Eko</option><option>Rudi</option><option>Ahmad</option></select></div>
+            <div class="field"><label>Lokasi Pit</label><select id="obPit"><option value="">—</option><option>Pit A</option><option>Pit B</option><option>Pit C</option></select></div>
+          </div>
+          <div class="f-row">
+            <div class="field"><label>Volume OB<span class="req">*</span></label><div class="iw"><input type="number" id="obVol" min="0" placeholder="0"><span class="uw">BCM</span></div></div>
+            <div class="field"><label>Jam Mesin (HM)<span class="req">*</span></label><div class="iw"><input type="number" id="obHM" min="0" step="0.1" placeholder="0.0"><span class="uw">jam</span></div></div>
+          </div>
+          <div class="field"><label>Ritase</label><div class="iw"><input type="number" id="obRit" min="0" placeholder="0"><span class="uw">rit</span></div></div>
+          <div class="field"><label>Jam Mulai — Selesai</label><div class="f-row"><input type="time" id="obJ1" value="07:00"><input type="time" id="obJ2" value="19:00"></div></div>
+          <div class="field"><label>Catatan</label><textarea id="obCat" rows="2" placeholder="Hujan, rusak, idle…"></textarea></div>
+          <button class="btn-p" id="btnOB" onclick="saveOB()">💾 Simpan Data OB</button>
+          <button class="btn-s" onclick="nav('s-home')">← Beranda</button>
+        </div>
+      </div>
+      <div class="sh"><h3>Riwayat OB</h3></div>
+      <div class="hist-list" id="obHist"><div class="empty"><div class="ei">⛏️</div><div class="em">Belum ada data</div></div></div>
+    </div>
+
+    <!-- ═══ BBM / SOLAR ═══ -->
+    <div class="screen pad" id="s-bbm">
+      <div id="bbmAlert"></div>
+      <div class="sh" style="margin-bottom:6px"><h3>Realisasi Solar Hari Ini</h3></div>
+      <div id="bbmUnits"><div class="empty"><div class="ei">⛽</div><div class="em">Belum ada data solar hari ini</div></div></div>
+      <div class="form-card" style="margin-top:4px">
+        <div class="form-hdr"><span class="fh-ico">⛽</span><div><div class="fh-title">Input Solar</div><div class="fh-sub" id="bbmSub"></div></div></div>
+        <div class="form-body">
+          <div class="f-row">
+            <div class="field"><label>Unit<span class="req">*</span></label><select id="bbmUnit"><option value="">Pilih…</option><option>EX-01</option><option>EX-02</option><option>EX-03</option><option>DT-01</option><option>DT-02</option></select></div>
+            <div class="field"><label>Fuelman<span class="req">*</span></label><select id="bbmFuel"><option value="">Pilih…</option><option>Ahmad</option><option>Rudi</option></select></div>
+          </div>
+          <div class="field"><label>Jenis Pengisian</label><div class="seg-ctrl" id="jenisCtrl"><div class="seg-opt active" onclick="selSeg(this)">Awal</div><div class="seg-opt" onclick="selSeg(this)">Tengah</div><div class="seg-opt" onclick="selSeg(this)">Akhir</div></div></div>
+          <div class="f-row">
+            <div class="field"><label>Liter Keluar<span class="req">*</span></label><div class="iw"><input type="number" id="bbmLiter" min="0" placeholder="0"><span class="uw">L</span></div></div>
+            <div class="field"><label>HM Saat Isi</label><div class="iw"><input type="number" id="bbmHM" min="0" placeholder="0"><span class="uw">jam</span></div></div>
+          </div>
+          <div class="field"><label>Stok Tangki<span class="req">*</span></label><div class="iw"><input type="number" id="bbmStok" min="0" placeholder="0"><span class="uw">L</span></div><div class="hint">Wajib diisi Fuelman tiap pengisian</div></div>
+          <div class="field"><label>Catatan</label><textarea id="bbmCat" rows="2" placeholder="Tumpahan, kondisi unit…"></textarea></div>
+          <button class="btn-p" id="btnBBM" onclick="saveBBM()">💾 Simpan Data Solar</button>
+          <button class="btn-s" onclick="nav('s-home')">← Beranda</button>
+        </div>
+      </div>
+      <div class="sh"><h3>Riwayat Solar</h3></div>
+      <div class="hist-list" id="bbmHist"><div class="empty"><div class="ei">⛽</div><div class="em">Belum ada data</div></div></div>
+    </div>
+
+    <!-- ═══ AI CHAT ═══ -->
+    <div class="screen" id="s-ai" style="display:flex;flex-direction:column;height:100%;padding:0;">
+      <div class="ai-header">
+        <div class="ai-header-title">✦ Asisten AI — MineralOps</div>
+        <div class="ai-header-sub">Tanya apa saja. AI membaca data riil + cuaca 3 hari ke depan.</div>
+      </div>
+      <div class="ai-quick">
+        <div class="qchip" onclick="askQuick('Kondisi operasional hari ini?')">Kondisi hari ini</div>
+        <div class="qchip" onclick="askQuick('Unit mana yang paling boros solar?')">Boros solar</div>
+        <div class="qchip" onclick="askQuick('Apakah target OB bulan ini tercapai?')">Target OB</div>
+        <div class="qchip" onclick="askQuick('Apa risiko terbesar dan prioritas utama saat ini?')">Prioritas</div>
+        <div class="qchip" onclick="askQuick('Prediksi level air 3 hari ke depan berdasarkan cuaca?')">Prediksi air</div>
+        <div class="qchip" onclick="askQuick('Rekomendasi untuk shift berikutnya?')">Rekomendasi shift</div>
+      </div>
+      <div class="ai-msgs" id="aiMsgs">
+        <div class="msg ai"><div class="msg-label">✦ AI</div>Halo! Saya AI operasional tambang PT. Mineral Baturaja Indonesia. Saya membaca data Air, OB, Solar, dan cuaca 3 hari ke depan. Tanya apa saja.</div>
+      </div>
+      <div class="ai-input-row">
+        <textarea id="aiInput" placeholder="Ketik pertanyaan…" rows="1" onkeydown="aiKeydown(event)"></textarea>
+        <button class="ai-send" id="aiSendBtn" onclick="sendAI()">
+          <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══ RIWAYAT ═══ -->
+    <div class="screen pad" id="s-riwayat">
+      <div class="sh"><h3>Semua Data</h3><button class="sh-act" style="color:var(--warn)" onclick="confirmClear()">Hapus Cache</button></div>
+      <div class="shift-row" style="margin-bottom:10px">
+        <div class="shift-btn active" onclick="filtRiwayat(this,'all')">Semua</div>
+        <div class="shift-btn" onclick="filtRiwayat(this,'air')">Air</div>
+        <div class="shift-btn" onclick="filtRiwayat(this,'ob')">OB</div>
+        <div class="shift-btn" onclick="filtRiwayat(this,'bbm')">Solar</div>
+      </div>
+      <div id="riwayatEl"><div class="empty"><div class="ei">📋</div><div class="em">Belum ada data</div></div></div>
+    </div>
+
+  </div>
+
+  <div id="tabbar">
+    <button class="tab-btn active" id="tab-home" onclick="nav('s-home')"><span class="tab-icon">🏠</span><span class="tab-label">Beranda</span></button>
+    <button class="tab-btn" id="tab-air" onclick="nav('s-air')"><span class="tab-icon">💧</span><span class="tab-label">Air</span></button>
+    <button class="tab-btn" id="tab-ob" onclick="nav('s-ob')"><span class="tab-icon">⛏️</span><span class="tab-label">OB</span></button>
+    <button class="tab-btn" id="tab-bbm" onclick="nav('s-bbm')"><span class="tab-icon">⛽</span><span class="tab-label">Solar</span></button>
+    <button class="tab-btn ai-tab" id="tab-ai" onclick="nav('s-ai')"><span class="tab-icon">✦</span><span class="tab-label">AI</span></button>
+  </div>
+</div>
+
+<div class="ver">v1.3 · AI+Sheets+Cuaca</div>
+<div id="toast"></div>
+<div class="modal-overlay" id="clearModal">
+  <div class="modal-box">
+    <div class="modal-title">🗑️ Hapus Cache Lokal?</div>
+    <div class="modal-sub">Data di Google Sheets tidak terhapus. Hanya cache lokal yang dihapus.</div>
+    <button class="btn-danger" onclick="doClear(true)">Ya, Hapus Cache</button>
+    <button class="btn-s" onclick="doClear(false)">Batal</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ══ PWA SERVICE WORKER ══ */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('SW registered:', reg.scope))
+      .catch(err => console.log('SW error:', err));
+  });
+}
+/* ══ CONFIG ══ */
+const CFG = {
+  GAS_URL:    'https://script.google.com/macros/s/AKfycbyVu2pkmc84g2BaYaCbAXmVIDxUkBS5aO08QqQZ0JHuckbF1aLhQVFgpW44hravUK1dUg/exec',
+  GEMINI_KEY: 'AQ.Ab8RN6LNmB4Zq5mamh24pIhhKa6j0fB1ZFSNpoP_JRDlWc0VPA',
+  GEMINI_URL: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+  // Koordinat Baturaja, Sumatera Selatan
+  LAT: -4.13, LNG: 104.15,
+  TARGET_OB: 120000,
+  BOROS: 350,
+  // Threshold deteksi dini
+  POND_WARN: 75,   // % — peringatan pond
+  POND_CRIT: 85,   // % — kritis
+  BCM_HM_MIN: 80,  // BCM/HM minimum efisiensi
+  VERSION: 'v1.3'
+};
+
+/* ══ CACHE ══ */
+const CACHE = {
+  get(k)   { try{ return JSON.parse(localStorage.getItem('mb_'+k)||'[]') }catch{ return[] } },
+  push(k,v){ const a=CACHE.get(k); a.unshift(v); localStorage.setItem('mb_'+k,JSON.stringify(a.slice(0,200))) },
+  set(k,v) { localStorage.setItem('mb_'+k,JSON.stringify(v)) },
+  getOne(k){ try{ return JSON.parse(localStorage.getItem('mb_'+k)||'null') }catch{ return null } },
+  clear(k) { localStorage.removeItem('mb_'+k) }
+};
+
+/* ══ WEATHER STATE ══ */
+let wxData = null;
+
+/* ══ GOOGLE SHEETS ══ */
+async function gsPost(sheet, headers, row) {
+  const r = await fetch(CFG.GAS_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify({sheet,headers,row}) });
+  return r.json();
+}
+async function gsGet(sheet) {
+  const r = await fetch(`${CFG.GAS_URL}?sheet=${encodeURIComponent(sheet)}`);
+  const j = await r.json();
+  if (!j.data||j.data.length<2) return [];
+  const h=j.data[0];
+  return j.data.slice(1).map(row=>{ const o={}; h.forEach((k,i)=>o[k]=row[i]); return o; });
+}
+function setSyncStatus(state, msg) {
+  g('syncDot').className='sync-dot '+state;
+  g('syncTxt').textContent=msg;
+}
+async function syncFromSheets() {
+  setSyncStatus('syncing','Menyinkronkan dari Google Sheets…');
+  try {
+    const [air,ob,bbm] = await Promise.all([gsGet('Air'),gsGet('OB'),gsGet('BBM')]);
+    CACHE.set('air', air.map(r=>({id:r.ID,ts:new Date(r.Timestamp).getTime(),shift:r.Shift,titik:r.Titik,level:+r.Level,pompa:r.Pompa?r.Pompa.split(','):[],debit:+r.Debit,cat:r.Catatan,petugas:r.Petugas})));
+    CACHE.set('ob',  ob.map(r=>({id:r.ID,ts:new Date(r.Timestamp).getTime(),shift:r.Shift,unit:r.Unit,op:r.Operator,pit:r.Pit,vol:+r.Volume_BCM,hm:+r.HM,ratio:+r.BCM_per_HM,rit:+r.Ritase,j1:r.Jam_Mulai,j2:r.Jam_Selesai,cat:r.Catatan})));
+    CACHE.set('bbm', bbm.map(r=>({id:r.ID,ts:new Date(r.Timestamp).getTime(),shift:r.Shift,unit:r.Unit,fuelman:r.Fuelman,jenis:r.Jenis,liter:+r.Liter,hm:+r.HM,stok:+r.Stok,cat:r.Catatan})));
+    setSyncStatus('ok',`Tersinkron · ${fmtTime(Date.now())}`);
+    render(screen);
+  } catch(e) {
+    setSyncStatus('err','Gagal — menampilkan data lokal');
+  }
+}
+
+/* ══ WEATHER — Open-Meteo (gratis, no key) ══ */
+async function fetchWeather() {
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${CFG.LAT}&longitude=${CFG.LNG}&daily=precipitation_sum,precipitation_probability_max,weathercode&timezone=Asia%2FJakarta&forecast_days=3`;
+    const r = await fetch(url);
+    const j = await r.json();
+    wxData = j.daily;
+    CACHE.set('weather', wxData);
+    renderWeather();
+  } catch(e) {
+    // fallback ke cache
+    wxData = CACHE.getOne('weather');
+    if (wxData) renderWeather();
+    else g('weatherCard').innerHTML=`<div class="alert blue" style="margin-bottom:8px"><span class="a-ico">🌤️</span><div><div class="a-title">Data cuaca tidak tersedia</div><div class="a-body">Periksa koneksi internet.</div></div></div>`;
+  }
+}
+
+function wxIcon(code) {
+  if (code===0) return '☀️';
+  if (code<=2)  return '🌤️';
+  if (code<=45) return '🌥️';
+  if (code<=67) return '🌧️';
+  if (code<=82) return '🌦️';
+  return '⛈️';
+}
+function wxClass(mm) {
+  if (mm>=20) return 'danger';
+  if (mm>=8)  return 'caution';
+  return 'safe';
+}
+function wxDayName(dateStr) {
+  const d = new Date(dateStr);
+  return ['Min','Sen','Sel','Rab','Kam','Jum','Sab'][d.getDay()];
+}
+
+function renderWeather() {
+  if (!wxData) return;
+  const days = wxData.time.slice(0,3);
+  const rain  = wxData.precipitation_sum;
+  const prob  = wxData.precipitation_probability_max;
+  const code  = wxData.weathercode;
+
+  // weather strip
+  const strip = `
+    <div class="weather-strip">
+      <div class="wx-head"><span style="font-size:13px">🌦️</span><span class="wt">Prakiraan Hujan — Baturaja 3 Hari</span><span class="ws">Open-Meteo</span></div>
+      <div class="wx-days">
+        ${days.map((d,i)=>`
+          <div class="wx-day ${wxClass(rain[i])}">
+            <div class="wd">${wxDayName(d)}</div>
+            <div class="wi">${wxIcon(code[i])}</div>
+            <div class="wr">${rain[i].toFixed(0)} mm</div>
+            <div class="wp">${prob[i]}% 🌧️</div>
+          </div>`).join('')}
+      </div>
+      ${rain[0]>=20||rain[1]>=20 ? `<div style="margin-top:8px;font-size:9.5px;color:var(--warn);font-weight:600">⚠️ Hujan lebat diprediksi — pantau level pond ketat</div>` : rain[0]>=8||rain[1]>=8 ? `<div style="margin-top:8px;font-size:9.5px;color:var(--amber);font-weight:600">⚡ Potensi hujan sedang — siapkan pompa cadangan</div>` : `<div style="margin-top:8px;font-size:9.5px;color:var(--ok);font-weight:600">✓ Cuaca relatif aman 3 hari ke depan</div>`}
+    </div>`;
+  if (g('weatherCard')) g('weatherCard').innerHTML = strip;
+
+  // prediksi air terintegrasi
+  renderAirPred();
+
+  // update home alerts dengan cuaca
+  rHome();
+}
+
+function renderAirPred() {
+  const airData = CACHE.get('air');
+  const lPond = airData.find(r=>r.titik?.includes('Pond'));
+  let html = '';
+
+  if (!lPond) {
+    html = `<div class="alert blue"><span class="a-ico">💡</span><div><div class="a-title">Belum Ada Data Pond</div><div class="a-body">Input level settling pond untuk mengaktifkan prediksi.</div></div></div>`;
+  } else {
+    const level = lPond.level;
+    const debit = lPond.debit || 0;
+    // estimasi naik: asumsi 3% per 10mm hujan (dummy — ganti sesuai kapasitas nyata)
+    const rainNext = wxData ? (wxData.precipitation_sum[0]+wxData.precipitation_sum[1]) : 0;
+    const predLevel = Math.min(100, level + (rainNext * 0.3) - (debit > 0 ? 5 : 0));
+    const risk = predLevel >= 90 ? 'danger' : predLevel >= 75 ? 'caution' : 'safe';
+    const cls  = risk==='danger' ? 'red' : risk==='caution' ? 'amber' : 'green';
+    const icon = risk==='danger' ? '🚨' : risk==='caution' ? '⚠️' : '✅';
+    const msg  = risk==='danger'
+      ? `Level pond diprediksi mencapai ${predLevel.toFixed(0)}% dalam 48 jam. SEGERA tambah pompa.`
+      : risk==='caution'
+      ? `Level pond diprediksi naik ke ${predLevel.toFixed(0)}%. Siapkan pompa P-02 sebagai cadangan.`
+      : `Level pond aman. Estimasi ${predLevel.toFixed(0)}% dalam 48 jam.`;
+
+    html = `
+      <div class="alert ${cls}" style="margin-bottom:7px">
+        <span class="a-ico">${icon}</span>
+        <div>
+          <div class="a-title">${risk==='danger'?'KRITIS':risk==='caution'?'Waspada':'Aman'} — Prediksi 48 Jam</div>
+          <div class="a-body">${msg} (Saat ini: ${level}% | Hujan +${rainNext.toFixed(0)}mm)</div>
+        </div>
+      </div>
+      <div class="pred-panel">
+        <div class="pred-panel-hd"><span class="pt">Detail Prediksi Pond</span><span class="ps">AI + Cuaca</span></div>
+        <div class="pred-body">
+          <div class="pred-row">
+            <span class="pred-icon">📊</span>
+            <div class="pred-info">
+              <div class="pred-label">Level sekarang</div>
+              <div class="pred-bar-wrap"><div class="pred-bar"><div class="pred-bar-fill" style="width:${level}%;background:${level>=75?'var(--warn)':'var(--accent)'}"></div></div></div>
+            </div>
+            <div class="pred-val ${level>=75?'warn':level>=50?'amber':'ok'}">${level}%</div>
+          </div>
+          <div class="pred-row">
+            <span class="pred-icon">🔮</span>
+            <div class="pred-info">
+              <div class="pred-label">Prediksi 48 jam</div>
+              <div class="pred-bar-wrap"><div class="pred-bar"><div class="pred-bar-fill" style="width:${predLevel}%;background:${predLevel>=85?'var(--warn)':'var(--amber)'}"></div></div></div>
+            </div>
+            <div class="pred-val ${risk==='danger'?'warn':risk==='caution'?'amber':'ok'}">${predLevel.toFixed(0)}%</div>
+          </div>
+          <div class="pred-row">
+            <span class="pred-icon">💧</span>
+            <div class="pred-info"><div class="pred-label">Pompa aktif</div><div class="pred-sub">${lPond.pompa?.join(', ')||'Tidak ada'}</div></div>
+            <div class="pred-val ${lPond.pompa?.length?'ok':'warn'}">${lPond.pompa?.length||0} unit</div>
+          </div>
+        </div>
+      </div>`;
+  }
+  if (g('airPred')) g('airPred').innerHTML = html;
+}
+
+/* ══ DETEKSI DINI ══ */
+function runDetection() {
+  const air = CACHE.get('air');
+  const ob  = CACHE.get('ob');
+  const bbm = CACHE.get('bbm');
+  const detections = [];
+
+  // 1. Pond tinggi
+  const lPond = air.find(r=>r.titik?.includes('Pond'));
+  if (lPond) {
+    if (lPond.level >= CFG.POND_CRIT)
+      detections.push({ type:'warn', icon:'🚨', label:'Settling Pond KRITIS', sub:`Level ${lPond.level}% — segera tambah pompa`, val:`${lPond.level}%`, cls:'warn' });
+    else if (lPond.level >= CFG.POND_WARN)
+      detections.push({ type:'amber', icon:'⚠️', label:'Settling Pond Tinggi', sub:`Level ${lPond.level}% — pantau ketat`, val:`${lPond.level}%`, cls:'amber' });
+  }
+
+  // 2. BBM boros hari ini
+  const todayBBM = bbm.filter(r=>isToday(r.ts));
+  const byUnit = {};
+  todayBBM.forEach(r=>{ if(!byUnit[r.unit])byUnit[r.unit]=0; byUnit[r.unit]+=r.liter; });
+  Object.entries(byUnit).forEach(([unit,liter])=>{
+    if (liter > CFG.BOROS)
+      detections.push({ type:'amber', icon:'⛽', label:`${unit} Boros Solar`, sub:`${liter}L hari ini (normal: ≤${CFG.BOROS}L)`, val:`+${liter-CFG.BOROS}L`, cls:'amber' });
+  });
+
+  // 3. Efisiensi BCM/HM rendah
+  const todayOB = ob.filter(r=>isToday(r.ts));
+  todayOB.forEach(r=>{
+    if (r.ratio < CFG.BCM_HM_MIN && r.ratio > 0)
+      detections.push({ type:'amber', icon:'⛏️', label:`${r.unit} Efisiensi Rendah`, sub:`BCM/HM: ${r.ratio} (target: ≥${CFG.BCM_HM_MIN})`, val:`${r.ratio}`, cls:'amber' });
+  });
+
+  // 4. Cuaca ekstrem
+  if (wxData) {
+    const maxRain = Math.max(...wxData.precipitation_sum.slice(0,2));
+    if (maxRain >= 20)
+      detections.push({ type:'warn', icon:'🌧️', label:'Hujan Lebat Diprediksi', sub:`Max ${maxRain.toFixed(0)}mm/hari — risiko genangan tinggi`, val:`${maxRain.toFixed(0)}mm`, cls:'warn' });
+  }
+
+  return detections;
+}
+
+/* ══ GEMINI ══ */
+function buildContext() {
+  const air  = CACHE.get('air');
+  const ob   = CACHE.get('ob');
+  const bbm  = CACHE.get('bbm');
+  const todayOB  = ob.filter(r=>isToday(r.ts));
+  const todayBBM = bbm.filter(r=>isToday(r.ts));
+  const totOB    = todayOB.reduce((s,r)=>s+r.vol,0);
+  const totBBM   = todayBBM.reduce((s,r)=>s+r.liter,0);
+  const monOB    = ob.filter(r=>isMonth(r.ts)).reduce((s,r)=>s+r.vol,0);
+  const lSump    = air.find(r=>r.titik?.includes('Sump'));
+  const lPond    = air.find(r=>r.titik?.includes('Pond'));
+  const byUnit   = {};
+  todayBBM.forEach(r=>{ if(!byUnit[r.unit])byUnit[r.unit]=0; byUnit[r.unit]+=r.liter; });
+
+  let wxCtx = 'Tidak tersedia';
+  if (wxData) {
+    wxCtx = wxData.time.map((d,i)=>`${d}: ${wxData.precipitation_sum[i].toFixed(0)}mm (prob ${wxData.precipitation_probability_max[i]}%)`).join(' | ');
+  }
+
+  const detections = runDetection();
+
+  return `Kamu adalah AI operasional tambang batubara PT. Mineral Baturaja Indonesia.
+Jawab singkat, langsung, dalam Bahasa Indonesia. Jangan sebut "berdasarkan data".
+
+=== DATA OPERASI ===
+Tanggal: ${fmtDate(new Date())} | Shift: ${shift}
+
+OB: ${totOB.toLocaleString('id')} BCM hari ini | Bulan: ${monOB.toLocaleString('id')}/${CFG.TARGET_OB.toLocaleString('id')} BCM (${Math.round(monOB/CFG.TARGET_OB*100)}%)
+${todayOB.map(r=>`- ${r.unit}|${r.op}|${r.pit}|${r.vol}BCM|${r.hm}HM|${r.ratio}BCM/HM${r.cat?'|'+r.cat:''}`).join('\n')||'- Kosong'}
+
+BBM: ${totBBM}L hari ini | Threshold boros: ${CFG.BOROS}L/unit
+${Object.entries(byUnit).map(([u,l])=>`- ${u}: ${l}L${l>CFG.BOROS?' ⚠️BOROS':''}`).join('\n')||'- Kosong'}
+
+Air: Sump=${lSump?`${lSump.titik} ${lSump.level}% pompa:${lSump.pompa?.join(',')}`:'kosong'} | Pond=${lPond?`${lPond.level}%${lPond.level>=75?' ⚠️':''}`:' kosong'}
+
+Cuaca 3 hari (Baturaja): ${wxCtx}
+
+Deteksi dini aktif: ${detections.map(d=>d.label).join(', ')||'Tidak ada anomali'}
+===`;
+}
+
+async function callGemini(prompt) {
+  const r = await fetch(`${CFG.GEMINI_URL}?key=${CFG.GEMINI_KEY}`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ contents:[{role:'user',parts:[{text:buildContext()+'\n\nPertanyaan: '+prompt}]}], generationConfig:{temperature:0.7,maxOutputTokens:512} })
+  });
+  const j = await r.json();
+  if (j.error) throw new Error(j.error.message);
+  return j.candidates?.[0]?.content?.parts?.[0]?.text || 'AI tidak memberikan respons.';
+}
+
+async function generateBriefing() {
+  try {
+    const txt = await callGemini('Buat briefing pagi singkat (3-4 kalimat) untuk Pengawas. Highlight kondisi terpenting termasuk cuaca dan risiko air jika ada.');
+    g('briefTxt').innerHTML = `<span style="font-size:10.5px;color:var(--tx2);line-height:1.6">${txt.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>')}</span>`;
+  } catch(e) {
+    g('briefTxt').innerHTML = `<span style="font-size:10px;color:var(--tx3)">Briefing AI tidak tersedia saat ini.</span>`;
+  }
+}
+
+/* ══ AI CHAT ══ */
+function addMsg(role, text) {
+  const msgs=g('aiMsgs'), div=document.createElement('div');
+  div.className='msg '+role;
+  if(role==='ai') div.innerHTML=`<div class="msg-label">✦ AI</div>${text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>')}`;
+  else div.textContent=text;
+  msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight;
+  return div;
+}
+function addThinking() {
+  const msgs=g('aiMsgs'), div=document.createElement('div');
+  div.className='msg-thinking';
+  div.innerHTML=`<div class="dots"><span></span><span></span><span></span></div><span>AI sedang berpikir…</span>`;
+  msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight;
+  return div;
+}
+async function sendAI() {
+  const input=g('aiInput'), q=input.value.trim();
+  if(!q) return;
+  input.value=''; g('aiSendBtn').disabled=true;
+  addMsg('user',q);
+  const thinking=addThinking();
+  try { const ans=await callGemini(q); thinking.remove(); addMsg('ai',ans); }
+  catch(e) { thinking.remove(); addMsg('ai','AI tidak dapat dijangkau saat ini.'); }
+  g('aiSendBtn').disabled=false;
+}
+function askQuick(q){ g('aiInput').value=q; sendAI(); }
+function aiKeydown(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAI();} }
+
+/* ══ STATE & NAV ══ */
+let shift='Siang', screen='s-home', rFilt='all';
+const TITLES={'s-home':'Beranda','s-air':'Manajemen Air','s-ob':'Produksi OB','s-bbm':'BBM / Solar','s-ai':'Asisten AI','s-riwayat':'Riwayat Data'};
+const TABS  ={'s-home':'tab-home','s-air':'tab-air','s-ob':'tab-ob','s-bbm':'tab-bbm','s-ai':'tab-ai'};
+function g(i){return document.getElementById(i)}
+function v(i){return g(i)?g(i).value.trim():''}
+function n(i){return parseFloat(g(i)?.value)||0}
+function nav(id){
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');if(s.id!=='s-ai')s.style.display='';});
+  document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
+  const el=g(id);
+  if(id==='s-ai'){el.style.display='flex';}else{el.classList.add('active');}
+  if(TABS[id])g(TABS[id]).classList.add('active');
+  g('navPage').textContent=TITLES[id]||'';
+  if(id!=='s-ai')g('content').scrollTop=0;
+  screen=id; render(id);
+}
+function render(id){
+  if(id==='s-home')    rHome();
+  if(id==='s-air')     rAir();
+  if(id==='s-ob')      rOB();
+  if(id==='s-bbm')     rBBM();
+  if(id==='s-riwayat') rRiwayat();
+}
+
+/* ══ SHIFT ══ */
+function toggleShift(){ shift=shift==='Siang'?'Malam':'Siang'; g('shiftBtn').textContent='SHIFT '+shift; updateSubs(); render(screen); }
+function selShift(s){ shift=s; g('shiftBtn').textContent='SHIFT '+s; ['Siang','Malam'].forEach(x=>{if(g('sh'+x))g('sh'+x).classList.toggle('active',x===s)}); updateSubs(); }
+function updateSubs(){
+  const d=fmtDate(new Date()),sub=`Shift ${shift} · ${d}`;
+  ['airSub','obSub','bbmSub'].forEach(i=>{if(g(i))g(i).textContent=sub});
+  ['Siang','Malam'].forEach(x=>{if(g('sh'+x))g('sh'+x).classList.toggle('active',x===shift)});
+}
+function selSeg(el){ el.closest('.seg-ctrl').querySelectorAll('.seg-opt').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
+function toggleSeg(el){ el.classList.toggle('active'); }
+function getSegs(id){ return[...document.querySelectorAll('#'+id+' .seg-opt.active')].map(e=>e.textContent.trim()) }
+
+/* ══ HELPERS ══ */
+function fmtDate(d){const dy=['Min','Sen','Sel','Rab','Kam','Jum','Sab'],mo=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];return`${dy[d.getDay()]}, ${d.getDate()} ${mo[d.getMonth()]} ${d.getFullYear()}`}
+function fmtTime(ts){const d=new Date(ts);return`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`}
+function fmtDT(ts){return`${fmtDate(new Date(ts))} ${fmtTime(ts)}`}
+function fmtISO(ts){const d=new Date(ts);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${fmtTime(ts)}`}
+function isToday(ts){const d=new Date(ts),n=new Date();return d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth()&&d.getDate()===n.getDate()}
+function isMonth(ts){const d=new Date(ts),n=new Date();return d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth()}
+function toast(msg){const t=g('toast');t.textContent=msg;t.className='show';setTimeout(()=>t.className='',2500)}
+function req(checks){for(const[id,lbl]of checks){if(!v(id)){toast('⚠️ '+lbl+' wajib diisi');g(id).focus();return false}}return true}
+function clr(...ids){ids.forEach(i=>{if(g(i))g(i).value=''})}
+function setBtn(id,loading,label){const b=g(id);if(loading){b.disabled=true;b.innerHTML='<span style="width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;margin-right:6px;vertical-align:middle"></span>Menyimpan…'}else{b.disabled=false;b.innerHTML=label}}
+function borosUnit(data){const bu={};data.filter(r=>isToday(r.ts)).forEach(r=>{if(!bu[r.unit])bu[r.unit]={unit:r.unit,total:0};bu[r.unit].total+=r.liter});return Object.values(bu).find(u=>u.total>CFG.BOROS)||null}
+
+/* ══ SAVE ══ */
+async function saveAir(){
+  if(!req([['airTitik','Titik Ukur'],['airLevel','Level Air'],['airPetugas','Petugas']]))return;
+  const lv=n('airLevel');if(lv<0||lv>100){toast('⚠️ Level harus 0–100');return}
+  setBtn('btnAir',true);
+  const id=Date.now(),ts=Date.now(),pompa=getSegs('pompaCtrl');
+  const rec={id,ts,shift,titik:v('airTitik'),level:lv,pompa,debit:n('airDebit'),cat:v('airCat'),petugas:v('airPetugas')};
+  CACHE.push('air',rec);rAir();rHome();
+  try{await gsPost('Air',['ID','Timestamp','Shift','Titik','Level','Pompa','Debit','Catatan','Petugas'],[id,fmtISO(ts),shift,rec.titik,lv,pompa.join(','),rec.debit,rec.cat,rec.petugas]);setSyncStatus('ok',`Tersimpan · ${fmtTime(Date.now())}`);toast('✅ Data Air tersimpan');}
+  catch(e){setSyncStatus('err','Tersimpan lokal');toast('⚠️ Tersimpan lokal.');}
+  setBtn('btnAir',false,'💾 Simpan Data Air');
+  clr('airLevel','airDebit','airCat');g('airTitik').value='';g('airPetugas').value='';
+  document.querySelectorAll('#pompaCtrl .seg-opt').forEach(b=>b.classList.remove('active'));
+}
+async function saveOB(){
+  if(!req([['obUnit','Unit Alat'],['obOp','Operator'],['obVol','Volume OB'],['obHM','Jam Mesin']]))return;
+  const vol=n('obVol'),hm=n('obHM');
+  if(vol<=0){toast('⚠️ Volume harus > 0');return}if(hm<=0){toast('⚠️ HM harus > 0');return}
+  setBtn('btnOB',true);
+  const id=Date.now(),ts=Date.now(),ratio=+(vol/hm).toFixed(1);
+  const rec={id,ts,shift,unit:v('obUnit'),op:v('obOp'),pit:v('obPit'),vol,hm,ratio,rit:n('obRit'),j1:v('obJ1'),j2:v('obJ2'),cat:v('obCat')};
+  CACHE.push('ob',rec);rOB();rHome();
+  try{await gsPost('OB',['ID','Timestamp','Shift','Unit','Operator','Pit','Volume_BCM','HM','BCM_per_HM','Ritase','Jam_Mulai','Jam_Selesai','Catatan'],[id,fmtISO(ts),shift,rec.unit,rec.op,rec.pit,vol,hm,ratio,rec.rit,rec.j1,rec.j2,rec.cat]);setSyncStatus('ok',`Tersimpan · ${fmtTime(Date.now())}`);toast('✅ Data OB tersimpan');}
+  catch(e){setSyncStatus('err','Tersimpan lokal');toast('⚠️ Tersimpan lokal.');}
+  setBtn('btnOB',false,'💾 Simpan Data OB');
+  clr('obVol','obHM','obRit','obCat');g('obUnit').value='';g('obOp').value='';g('obPit').value='';
+}
+async function saveBBM(){
+  if(!req([['bbmUnit','Unit'],['bbmFuel','Fuelman'],['bbmLiter','Liter Keluar'],['bbmStok','Stok Tangki']]))return;
+  const liter=n('bbmLiter');if(liter<=0){toast('⚠️ Liter harus > 0');return}
+  setBtn('btnBBM',true);
+  const id=Date.now(),ts=Date.now(),jenis=getSegs('jenisCtrl')[0]||'Awal';
+  const rec={id,ts,shift,unit:v('bbmUnit'),fuelman:v('bbmFuel'),jenis,liter,hm:n('bbmHM'),stok:n('bbmStok'),cat:v('bbmCat')};
+  CACHE.push('bbm',rec);rBBM();rHome();
+  try{await gsPost('BBM',['ID','Timestamp','Shift','Unit','Fuelman','Jenis','Liter','HM','Stok','Catatan'],[id,fmtISO(ts),shift,rec.unit,rec.fuelman,jenis,liter,rec.hm,rec.stok,rec.cat]);setSyncStatus('ok',`Tersimpan · ${fmtTime(Date.now())}`);toast('✅ Data Solar tersimpan');}
+  catch(e){setSyncStatus('err','Tersimpan lokal');toast('⚠️ Tersimpan lokal.');}
+  setBtn('btnBBM',false,'💾 Simpan Data Solar');
+  clr('bbmLiter','bbmHM','bbmStok','bbmCat');g('bbmUnit').value='';g('bbmFuel').value='';
+  document.querySelectorAll('#jenisCtrl .seg-opt').forEach((b,i)=>b.classList.toggle('active',i===0));
+}
+
+/* ══ RENDER ══ */
+function rHome(){
+  const h=new Date().getHours();g('navGreet').textContent=`Selamat ${h<11?'pagi':h<15?'siang':h<18?'sore':'malam'}, Pengawas`;
+  g('briefTime').textContent=fmtTime(Date.now())+' WIB';
+  const air=CACHE.get('air'),ob=CACHE.get('ob'),bbm=CACHE.get('bbm');
+  const todayOB=ob.filter(r=>isToday(r.ts)),todayBBM=bbm.filter(r=>isToday(r.ts));
+  const totOB=todayOB.reduce((s,r)=>s+r.vol,0),totBBM=todayBBM.reduce((s,r)=>s+r.liter,0);
+  const lS=air.find(r=>r.titik?.includes('Sump')),lP=air.find(r=>r.titik?.includes('Pond'));
+  g('sOB').innerHTML=totOB?`${totOB.toLocaleString('id')} <span class="u">BCM</span>`:`— <span class="u">BCM</span>`;
+  g('sOBd').textContent=todayOB.length?`${todayOB.length} entri hari ini`:'—';g('sOBd').className='s-diff '+(todayOB.length?'c-ok':'');
+  g('sBBM').innerHTML=totBBM?`${totBBM} <span class="u">L</span>`:`— <span class="u">L</span>`;g('sBBMd').textContent=todayBBM.length?`${todayBBM.length} pengisian`:'—';
+  g('sSump').innerHTML=lS?`${lS.level} <span class="u">%</span>`:`— <span class="u">%</span>`;g('sSumpD').textContent=lS?(lS.level<80?'Aman':'Perlu perhatian'):'—';g('sSumpD').className='s-diff '+(lS?(lS.level<80?'c-ok':'c-warn'):'');
+  g('sPond').innerHTML=lP?`${lP.level} <span class="u">%</span>`:`— <span class="u">%</span>`;g('sPondD').textContent=lP?(lP.level<CFG.POND_WARN?'Aman':'Perlu pantau'):'—';g('sPondD').className='s-diff '+(lP?(lP.level<CFG.POND_WARN?'c-ok':'c-warn'):'');
+
+  // alerts gabungan operasional + cuaca
+  const detections = runDetection();
+  let al='';
+  // cuaca ekstrem dulu
+  if(wxData){const maxR=Math.max(...wxData.precipitation_sum.slice(0,2));if(maxR>=20)al+=`<div class="alert red"><span class="a-ico">🌧️</span><div><div class="a-title">Cuaca: Hujan Lebat Diprediksi</div><div class="a-body">Max ${maxR.toFixed(0)}mm dalam 48 jam. Pantau pond dan siapkan pompa cadangan.</div></div></div>`; else if(maxR>=8)al+=`<div class="alert amber"><span class="a-ico">🌦️</span><div><div class="a-title">Cuaca: Potensi Hujan Sedang</div><div class="a-body">${maxR.toFixed(0)}mm diprediksi. Siapkan pompa P-02 sebagai cadangan.</div></div></div>`;}
+  detections.filter(d=>d.type==='warn').forEach(d=>{ al+=`<div class="alert red"><span class="a-ico">${d.icon}</span><div><div class="a-title">${d.label}</div><div class="a-body">${d.sub}</div></div></div>`; });
+  detections.filter(d=>d.type==='amber').forEach(d=>{ al+=`<div class="alert amber"><span class="a-ico">${d.icon}</span><div><div class="a-title">${d.label}</div><div class="a-body">${d.sub}</div></div></div>`; });
+  g('homeAlerts').innerHTML=al;
+
+  const all=[...air.map(r=>({...r,_t:'air'})),...ob.map(r=>({...r,_t:'ob'})),...bbm.map(r=>({...r,_t:'bbm'}))].sort((a,b)=>b.ts-a.ts).slice(0,5);
+  g('homeHist').innerHTML=all.length?all.map(r=>hItem(r)).join(''):`<div class="empty"><div class="ei">📝</div><div class="em">Belum ada data</div><div class="es">Mulai input dari modul di atas</div></div>`;
+}
+
+function rAir(){
+  updateSubs();
+  const data=CACHE.get('air');
+  const lS1=data.find(r=>r.titik==='Sump #1'),lPd=data.find(r=>r.titik?.includes('Pond'));
+  if(lS1){g('lvS1').textContent=lS1.level+'%';g('barS1').style.width=lS1.level+'%';g('barS1').className='prog-fill '+(lS1.level>=80?'fill-warn':'fill-blue');}
+  if(lPd){g('lvPd').textContent=lPd.level+'%'+(lPd.level>=CFG.POND_WARN?' ⚠️':'');g('barPd').style.width=lPd.level+'%';g('barPd').className='prog-fill '+(lPd.level>=CFG.POND_WARN?'fill-warn':'fill-blue');}
+  const la=data[0];if(la?.pompa)['P-01','P-02','P-03'].forEach((p,i)=>{const on=la.pompa.includes(p),el=g(`pp${i+1}`);el.className='pump-card '+(on?'on':'off');el.querySelector('.p-ico').textContent=on?'🔄':'⏸️';el.querySelector('.p-status').textContent=on?'● ON':'○ OFF';});
+  renderAirPred();
+  g('airHist').innerHTML=data.length?data.slice(0,6).map(r=>`<div class="hist-item"><div class="h-ico blue">💧</div><div class="h-body"><div class="h-name">${r.titik} · Level ${r.level}%</div><div class="h-sub">${fmtTime(r.ts)} · ${r.petugas} · Pompa: ${r.pompa?.join(',')||'—'}</div></div><div class="h-right"><div class="h-val">${r.level}</div><div class="h-unit">%</div></div></div>`).join(''):`<div class="empty"><div class="ei">💧</div><div class="em">Belum ada data</div></div>`;
+}
+
+function rOB(){
+  updateSubs();const data=CACHE.get('ob');
+  const mon=data.filter(r=>isMonth(r.ts)),tot=mon.reduce((s,r)=>s+r.vol,0);
+  const pct=Math.min(100,Math.round(tot/CFG.TARGET_OB*100));
+  g('obProg').textContent=`${pct}% · ${tot.toLocaleString('id')} BCM`;g('barOB').style.width=pct+'%';g('barOB').className='prog-fill '+(pct>=90?'fill-ok':pct>=60?'fill-blue':'fill-warn');
+  let fc='';if(tot>0){const dp=new Date().getDate(),dim=new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate(),pred=Math.round(tot/dp*dim),pp=Math.round(pred/CFG.TARGET_OB*100);const cls=pp>=95?'green':pp>=80?'amber':'red';fc=`<div class="alert ${cls}" style="margin-bottom:7px"><span class="a-ico">📊</span><div><div class="a-title">Prediksi akhir bulan: ${pp}%</div><div class="a-body">Estimasi ${pred.toLocaleString('id')} BCM dari target ${CFG.TARGET_OB.toLocaleString('id')} BCM.</div></div></div>`;}
+  g('obForecast').innerHTML=fc;
+  g('obHist').innerHTML=data.length?data.slice(0,6).map(r=>`<div class="hist-item"><div class="h-ico green">⛏️</div><div class="h-body"><div class="h-name">${r.unit} · Shift ${r.shift}</div><div class="h-sub">${fmtTime(r.ts)} · ${r.op} · ${r.pit||'—'} · ${r.ratio} BCM/HM</div></div><div class="h-right"><div class="h-val">${r.vol.toLocaleString('id')}</div><div class="h-unit">BCM</div></div></div>`).join(''):`<div class="empty"><div class="ei">⛏️</div><div class="em">Belum ada data</div></div>`;
+}
+
+function rBBM(){
+  updateSubs();const data=CACHE.get('bbm'),today=data.filter(r=>isToday(r.ts));
+  const byUnit={};today.forEach(r=>{if(!byUnit[r.unit])byUnit[r.unit]={unit:r.unit,total:0,count:0};byUnit[r.unit].total+=r.liter;byUnit[r.unit].count++;});
+  const uList=Object.values(byUnit);
+  g('bbmUnits').innerHTML=uList.length?uList.map(u=>{const w=u.total>CFG.BOROS;return`<div class="unit-card ${w?'warn':''}"><span class="u-ico">${w?'⚠️':'🚧'}</span><div class="u-body"><div class="u-name">${u.unit}<span class="tag ${w?'warn':'ok'}">${w?'Boros':'Normal'}</span></div><div class="u-sub">${u.count} pengisian hari ini</div></div><div class="u-right"><div class="u-val">${u.total}</div><div class="u-uom">Liter</div></div></div>`}).join(''):`<div class="empty"><div class="ei">⛽</div><div class="em">Belum ada data solar hari ini</div></div>`;
+  const boros=borosUnit(today);g('bbmAlert').innerHTML=boros?`<div class="alert amber" style="margin-bottom:7px"><span class="a-ico">⛽</span><div><div class="a-title">${boros.unit} Konsumsi Tinggi</div><div class="a-body">${boros.total}L hari ini (threshold: ${CFG.BOROS}L). Periksa mesin.</div></div></div>`:'';
+  g('bbmHist').innerHTML=data.length?data.slice(0,6).map(r=>`<div class="hist-item"><div class="h-ico amber">⛽</div><div class="h-body"><div class="h-name">${r.unit} · ${r.jenis}</div><div class="h-sub">${fmtTime(r.ts)} · ${r.fuelman} · Stok: ${r.stok}L</div></div><div class="h-right"><div class="h-val">${r.liter}</div><div class="h-unit">L</div></div></div>`).join(''):`<div class="empty"><div class="ei">⛽</div><div class="em">Belum ada data</div></div>`;
+}
+
+function rRiwayat(){
+  let all=[];
+  if(rFilt==='all'||rFilt==='air')all=[...all,...CACHE.get('air').map(r=>({...r,_t:'air'}))];
+  if(rFilt==='all'||rFilt==='ob')all=[...all,...CACHE.get('ob').map(r=>({...r,_t:'ob'}))];
+  if(rFilt==='all'||rFilt==='bbm')all=[...all,...CACHE.get('bbm').map(r=>({...r,_t:'bbm'}))];
+  all.sort((a,b)=>b.ts-a.ts);
+  g('riwayatEl').innerHTML=all.length?all.map(r=>hItemFull(r)).join(''):`<div class="empty"><div class="ei">📋</div><div class="em">Belum ada data</div></div>`;
+}
+function filtRiwayat(el,f){rFilt=f;document.querySelectorAll('#s-riwayat .shift-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');rRiwayat();}
+function hItem(r){const ico=r._t==='air'?'blue':r._t==='ob'?'green':'amber';const icon=r._t==='air'?'💧':r._t==='ob'?'⛏️':'⛽';const name=r._t==='air'?`${r.titik} ${r.level}%`:r._t==='ob'?`${r.unit} Shift ${r.shift}`:`Solar ${r.unit} ${r.liter}L`;const sub=r._t==='air'?r.petugas:r._t==='ob'?r.op:r.fuelman;const val=r._t==='air'?r.level:r._t==='ob'?r.vol.toLocaleString('id'):r.liter;const uom=r._t==='air'?'%':r._t==='ob'?'BCM':'L';return`<div class="hist-item"><div class="h-ico ${ico}">${icon}</div><div class="h-body"><div class="h-name">${name}</div><div class="h-sub">${fmtTime(r.ts)} · ${sub}</div></div><div class="h-right"><div class="h-val">${val}</div><div class="h-unit">${uom}</div></div></div>`;}
+function hItemFull(r){let det='';if(r._t==='air')det=`${r.titik} | Level: ${r.level}% | Pompa: ${r.pompa?.join(',')||'—'} | Debit: ${r.debit}m³/j | ${r.petugas}`;if(r._t==='ob')det=`${r.unit} | ${r.op} | ${r.pit||'—'} | ${r.vol} BCM / ${r.hm}HM = ${r.ratio} BCM/HM | ${r.rit} rit`;if(r._t==='bbm')det=`${r.unit} | ${r.jenis} | ${r.liter}L | HM:${r.hm} | Stok:${r.stok}L | ${r.fuelman}`;const ico=r._t==='air'?'blue':r._t==='ob'?'green':'amber';const icon=r._t==='air'?'💧':r._t==='ob'?'⛏️':'⛽';return`<div class="hist-item" style="flex-direction:column;align-items:flex-start;gap:3px;"><div style="display:flex;align-items:center;gap:8px;width:100%"><div class="h-ico ${ico}">${icon}</div><div class="h-body"><div class="h-name">${det.split('|')[0].trim()}</div><div class="h-sub">${fmtDT(r.ts)} · Shift ${r.shift}</div></div></div><div style="font-size:9px;color:var(--tx3);padding-left:36px;line-height:1.5">${det}${r.cat?' | 📝'+r.cat:''}</div></div>`;}
+function confirmClear(){g('clearModal').classList.add('show')}
+function doClear(yes){g('clearModal').classList.remove('show');if(yes){['air','ob','bbm'].forEach(k=>CACHE.clear(k));toast('🗑️ Cache lokal dihapus');render(screen)}}
+
+/* ══ INIT ══ */
+(async function(){
+  updateSubs(); rHome();
+  await Promise.all([syncFromSheets(), fetchWeather()]);
+  generateBriefing();
+  setInterval(()=>{if(g('briefTime'))g('briefTime').textContent=fmtTime(Date.now())+' WIB'},60000);
+  setInterval(syncFromSheets, 5*60*1000);
+  setInterval(fetchWeather, 30*60*1000); // refresh cuaca tiap 30 menit
+})();
+</script>
+</body>
+</html>
